@@ -1,6 +1,9 @@
 # %%
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 bids = pd.read_csv('data/as_bid_aggregated_data.csv')
 plans = pd.read_csv('data/as_plan.csv')
@@ -16,10 +19,10 @@ data = {'bids':bids,
         'generation':generation,
         'weather':weather,
        }
-
-# %%
+#%%
 # process weather seperately, as hour 23 is indexed as hour -1 on the next day.
 def process_weather(df):
+    df = df.drop_duplicates()
     weather_negative = df[df['hr_beg'] == -1]
     #change value to 23rd hour
     weather_negative['hr_beg'] = 23
@@ -35,55 +38,71 @@ def process_weather(df):
     df = df.drop(columns=['date','hr_beg'])
     return df
 
-weather = process_weather(weather)
+data['weather'] = process_weather(weather)
+
 # %%
-def create_dt(input_df,date_col,hr_col):
+def create_dt(input_df,date_col,hr_col,tz ='America/Chicago'):
     #TODO runs quite slow, optimize if possible.
     '''create a datetime index for a dataframe from multiple cols
     '''
-    df = input_df.copy()
+    #TODO this would allow idempotence, but it in turn doesnt allow modifying the global from data[key]
+    #df = input_df.copy()
+    input_df = input_df.drop_duplicates()
+    if isinstance(input_df.index, pd.DatetimeIndex):
+        return input_df
     #TODO raise exceptions for multiple dt string formats in a column
-    if df[hr_col].astype(str).str.len().nunique() == 1:
+    if input_df[hr_col].astype(str).str.len().nunique() == 1:
         #hr_col is probably already in a inferable dt string format
-        df[hr_col] = pd.to_datetime(df[hr_col]).dt.time
+        input_df[hr_col] = pd.to_datetime(input_df[hr_col]).dt.time
     else:    
-        df[hr_col] = pd.to_datetime(df[hr_col],format='%H').dt.time
-    df = df.set_index(pd.to_datetime(df[date_col].astype(str)+'-'+df[hr_col].astype(str)))
-    df = df.drop(columns=[date_col,hr_col])
+        input_df[hr_col] = pd.to_datetime(input_df[hr_col],format='%H').dt.time
+    dt_index = pd.to_datetime(input_df[date_col].astype(str)+'T'+input_df[hr_col].astype(str))
+    #dt_index = pd.DatetimeIndex(dt_index,ambiguous='NaT',tz=tz,freq='H',)
+    input_df = input_df.set_index(dt_index)
+    input_df = input_df.drop(columns=[date_col,hr_col])
     #TODO this fails
-    df = df.asfreq('H')
-    return df
+    #input_df = input_df.asfreq('H')
+    return input_df
 
 # %%
-#process the rest of the dfs
-#TODO this extremely simple loop doesn't work. Why? 
-# for df in data:
-#     df = create_dt(df,'date','hr_beg')
-# %%
-bids = create_dt(bids, 'date', 'hr_beg')
-plans = create_dt(plans, 'date', 'hr_beg')
-energy_prices = create_dt(energy_prices, 'date', 'hr_beg')
-price_vol = create_dt(price_vol, 'date', 'hr_beg')
-generation = create_dt(generation, 'date', 'hr_beg')
-# weather = create_dt(weather, 'date', 'hr_beg')
-# %%
+#process the rest of the dfs. NOTE: modified dfs only present in `data` dict
+#TODO https://stackoverflow.com/questions/61377110/updating-dict-value-does-not-update-global-var-it-references
 for key, df in data.items():
-    nan_cols = df.describe().loc['count'] < generation.shape[0]
+    data[key] = create_dt(data[key],'date','hr_beg')
+
+# %%
+times = []
+for key, df in data.items():
+    start_ts = df.index.sort_values()[0]
+    end_ts = df.index.sort_values()[-1]
+    #TODO can this be done in single line?
+    times.append(start_ts)
+    times.append(end_ts)
+    mask = df.index.to_series().diff() > pd.Timedelta('01:00:00')
+    missing_ts = df[mask].index
+    nan_cols = df.describe().loc['count'] < df.shape[0]
     nan_cols = df.describe().loc['count'][nan_cols].sort_values()
     na = df.isna().any(axis=1)
     res = df[na]
-    print(f'{key} Summary:\n  Rows with NaN: {res.shape[0]}\n'\
-          f'                  Cols with NAn: {nan_cols}\n'
-          f'{df.describe()}'
+    print(f'{key} Summary:\n'
+          f"ts range: {start_ts} - {end_ts}\n"
+          f'Total Rows: {df.shape[0]}\n'
+          f'Rows NaN count: {res.shape[0]}\n'
+          f'Cols with NaN: \n{nan_cols}\n'
+          f'position of ts gaps: \n{missing_ts}\n'
+          f'Partial Describe:\n{df.describe().iloc[:,:3]}\n'
           )
 
+# %%
+#attempt to reindex each df with the rull date_range
+date_range = pd.date_range(min(times), max(times),freq='H',)#tz='America/Chicago')
+for key, df in data.items():
+    data[key] = data[key].asfreq('H').reindex(index=date_range, fill_value='missing')
 # %%
 #exploratory joins
 joined_df = bids.join(weather, how='inner')
 joined_df = joined_df.asfreq('H')
 joined_df.describe().loc['count']
 #this should be ~35,158 hours if continuous
-time_gaps = joined_df.index - joined_df.index.shift(1)
-time_gaps.plot()
 
-# %%
+
