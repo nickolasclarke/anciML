@@ -2,23 +2,22 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-
 
 bids = pd.read_csv('data/as_bid_aggregated_data.csv')
 plans = pd.read_csv('data/as_plan.csv')
 energy_prices = pd.read_csv('data/as_bid_aggregated_data.csv')
 price_vol = pd.read_csv('data/as_price_vol.csv')
-#generation = pd.read_csv('data/generation.csv')
+generation = pd.read_csv('data/generation.csv')
 weather = pd.read_csv('data/weather_forecast_ercot.csv')
 
 data = {'bids':bids,
         'plans':plans,
         'energy_prices':energy_prices,
         'price_vol':price_vol,
-        #'generation':generation,
+        'generation':generation,
         'weather':weather,
        }
+
 #clean up df-specific bits
 #data['generation'].fillna(0)
 #%%
@@ -48,7 +47,7 @@ def create_dt(input_df,date_col,hr_col,tz ='America/Chicago'):
     '''create a datetime index for a dataframe from multiple cols
     '''
     #TODO this would allow idempotence, but it in turn doesnt allow modifying the global from data[key]
-    #df = input_df.copy()
+    input_df = input_df.copy()
     #input_df = input_df.drop_duplicates()
     if isinstance(input_df.index, pd.DatetimeIndex):
         return input_df
@@ -98,6 +97,7 @@ for key, df in data.items():
 
 # %%
 #attempt to join on full data
+
 date_range = pd.date_range(min(times), max(times),freq='H',)#tz='America/Chicago')
 joined_df = pd.DataFrame(date_range, columns=["dt"])
 for key in data.keys():
