@@ -90,6 +90,40 @@ intersect_df.to_csv('data/intersect.csv')
 union_df.to_csv('data/union.csv')
 
 # %%
+#Drop duplicate cols
+#TODO Why are there dupes?
+union_df = union_df.drop(columns=['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
+                      'OFFNS_Min Price_x','OFFNS_Total Quantity_x',
+                      'OFFNS_Number of Bids_x','OFFNS_Weighted Avg Price_x',
+                      'ONNS_Unweighted Average Price_x','ONNS_Max Price_x',
+                      'ONNS_Min Price_x','ONNS_Total Quantity_x',
+                      'ONNS_Number of Bids_x','ONNS_Weighted Avg Price_x',
+                      'REGDN_Unweighted Average Price_x','REGDN_Max Price_x',
+                      'REGDN_Min Price_x','REGDN_Total Quantity_x',
+                      'REGDN_Number of Bids_x','REGDN_Weighted Avg Price_x',
+                      'REGUP_Unweighted Average Price_x','REGUP_Max Price_x',
+                      'REGUP_Min Price_x','REGUP_Total Quantity_x',
+                      'REGUP_Number of Bids_x','REGUP_Weighted Avg Price_x',
+                      'RRSGN_Unweighted Average Price_x','RRSGN_Max Price_x',
+                      'RRSGN_Min Price_x','RRSGN_Total Quantity_x',
+                      'RRSGN_Number of Bids_x','RRSGN_Weighted Avg Price_x',
+                      'RRSNC_Unweighted Average Price_x','RRSNC_Max Price_x',
+                      'RRSNC_Min Price_x','RRSNC_Total Quantity_x',
+                      'RRSNC_Number of Bids_x','RRSNC_Weighted Avg Price_x',
+                      'RRSLD_Unweighted Average Price_x','RRSLD_Max Price_x',
+                      'RRSLD_Min Price_x','RRSLD_Total Quantity_x',
+                      'RRSLD_Number of Bids_x','RRSLD_Weighted Avg Price_x',
+                      'RRSLD_Unweighted Average Price_y','RRSLD_Max Price_y',
+                      'RRSLD_Min Price_y','RRSLD_Total Quantity_y',
+                      'RRSLD_Number of Bids_y','RRSLD_Weighted Avg Price_y',
+                      'ST','Other','Imports'
+                      ])
+#find ts of rows with NaN:
+df.loc[pd.isnull(df).any(1), :].index.values
+#drop duplicate timestamps
+union_df = union_df.interpolate()
+df = df.groupby(df.index).first()
+#%%
 intersect_nan = intersect_df.describe().loc['count'] < df.shape[0]
 intersect_nan = intersect_df.describe().loc['count'][intersect_nan].sort_values()
 intersect_na = intersect_df.isna().any(axis=1)
