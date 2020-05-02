@@ -121,11 +121,11 @@ dupe_cols = ['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
 union_df = union_df.drop(columns=dupe_cols)
 intersect_df = intersect_df.drop(columns=dupe_cols)
 #find ts of rows with NaN:
-df.loc[pd.isnull(df).any(1), :].index.values
+intersect_df.loc[pd.isnull(intersect_df).any(1), :].index.values
 #drop duplicate timestamps
-df = df.groupby(df.index).first()
-#TODO interpolate union part of intersect_df
-union_df = union_df.interpolate()
+intersect_df = intersect_df.groupby(intersect_df.index).first()
+intersect_df = intersect_df.interpolate()
+#TODO interpolate intersect part of union_df
 
 #%%
 intersect_nan = intersect_df.describe().loc['count'] < df.shape[0]
