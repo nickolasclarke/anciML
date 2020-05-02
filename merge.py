@@ -70,9 +70,9 @@ for key, df in data.items():
 # %%
 #attempt to join on full data
 
-date_range = pd.date_range(min(start_time), max(end_time),freq='H')
-union_dates = pd.date_range(max(start_time), min(end_time),freq='H')
-intersect_df = pd.DataFrame(date_range, columns=["dt"])
+intersect_dates = pd.date_range(max(start_time), min(end_time),freq='H')
+union_dates = pd.date_range(min(start_time), max(end_time),freq='H')
+intersect_df = pd.DataFrame(intersect_dates, columns=["dt"])
 union_df = pd.DataFrame(union_dates, columns=["dt"])
 
 for key in data.keys():
@@ -92,7 +92,7 @@ union_df.to_csv('data/union.csv')
 # %%
 #Drop duplicate cols
 #TODO Why are there dupes?
-union_df = union_df.drop(columns=['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
+dupe_cols = ['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
                       'OFFNS_Min Price_x','OFFNS_Total Quantity_x',
                       'OFFNS_Number of Bids_x','OFFNS_Weighted Avg Price_x',
                       'ONNS_Unweighted Average Price_x','ONNS_Max Price_x',
@@ -117,12 +117,16 @@ union_df = union_df.drop(columns=['OFFNS_Unweighted Average Price_x','OFFNS_Max 
                       'RRSLD_Min Price_y','RRSLD_Total Quantity_y',
                       'RRSLD_Number of Bids_y','RRSLD_Weighted Avg Price_y',
                       'ST','Other','Imports'
-                      ])
+                      ]
+union_df = union_df.drop(columns=dupe_cols)
+intersect_df = intersect_df.drop(columns=dupe_cols)
 #find ts of rows with NaN:
 df.loc[pd.isnull(df).any(1), :].index.values
 #drop duplicate timestamps
-union_df = union_df.interpolate()
 df = df.groupby(df.index).first()
+#TODO interpolate union part of intersect_df
+union_df = union_df.interpolate()
+
 #%%
 intersect_nan = intersect_df.describe().loc['count'] < df.shape[0]
 intersect_nan = intersect_df.describe().loc['count'][intersect_nan].sort_values()
