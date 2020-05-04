@@ -12,7 +12,7 @@ data = {'bids':pd.read_csv('data/as_bid_aggregated_data.csv'),
        }
 
 #clean up df-specific bits
-data['generation'].fillna(0)
+data['generation'].fillna(0, inplace=True)
 # %%
 def create_dt(input_df,date_col,hr_col,tz ='America/Chicago'):
     #TODO runs quite slow, optimize if possible.
@@ -83,12 +83,6 @@ for key in data.keys():
     intersect_df.reset_index(inplace=True,drop=True)
     union_df.reset_index(inplace=True,drop=True)
 
-intersect_df = intersect_df.set_index('dt')
-union_df = union_df.set_index('dt')
-
-intersect_df.to_csv('data/intersect.csv')
-union_df.to_csv('data/union.csv')
-
 # %%
 #Drop duplicate cols
 #TODO Why are there dupes?
@@ -116,10 +110,10 @@ dupe_cols = ['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
                       'RRSLD_Unweighted Average Price_y','RRSLD_Max Price_y',
                       'RRSLD_Min Price_y','RRSLD_Total Quantity_y',
                       'RRSLD_Number of Bids_y','RRSLD_Weighted Avg Price_y',
-                      'ST','Other','Imports'
                       ]
 union_df = union_df.drop(columns=dupe_cols)
 intersect_df = intersect_df.drop(columns=dupe_cols)
+# %%
 #find ts of rows with NaN:
 intersect_df.loc[pd.isnull(intersect_df).any(1), :].index.values
 #drop duplicate timestamps
@@ -127,6 +121,13 @@ intersect_df = intersect_df.groupby(intersect_df.index).first()
 intersect_df = intersect_df.interpolate()
 #TODO interpolate intersect part of union_df
 
+#%%
+#write to disk
+intersect_df = intersect_df.set_index('dt')
+union_df = union_df.set_index('dt')
+
+intersect_df.to_csv('data/intersect.csv')
+union_df.to_csv('data/union.csv')
 #%%
 intersect_nan = intersect_df.describe().loc['count'] < df.shape[0]
 intersect_nan = intersect_df.describe().loc['count'][intersect_nan].sort_values()
