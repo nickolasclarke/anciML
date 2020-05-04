@@ -3,12 +3,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data = {'bids':pd.read_csv('data/as_bid_aggregated_data.csv'),
-        'plans':pd.read_csv('data/as_plan.csv'),
+data = {'bids':         pd.read_csv('data/as_bid_aggregated_data.csv'),
+        'plans':        pd.read_csv('data/as_plan.csv'),
         'energy_prices':pd.read_csv('data/as_bid_aggregated_data.csv'),
-        'price_vol':pd.read_csv('data/as_price_vol.csv'),
-        'generation':pd.read_csv('data/generation.csv'),
-        'weather':pd.read_csv('data/weather_forecast_ercot.csv'),
+        'price_vol':    pd.read_csv('data/as_price_vol.csv'),
+        'generation':   pd.read_csv('data/generation.csv'),
+        'weather':      pd.read_csv('data/weather_forecast_ercot.csv'),
+        'wind':         pd.read_csv('data/wind.csv')
        }
 
 #clean up df-specific bits
