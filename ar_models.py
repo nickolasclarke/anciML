@@ -16,6 +16,8 @@ x1,x2,x3,x4 = df.drop(columns=['price_DAH_REGDN']),df.drop(columns=['price_DAH_N
 Y = df[['price_DAH_REGDN','price_DAH_NSPIN','price_DAH_RRS','price_DAH_REGUP']]
 X = df.drop(columns=['price_DAH_REGDN','price_DAH_NSPIN','price_DAH_RRS','price_DAH_REGUP'])
 
+# x_exog = x[['RE']
+# ]
 #%%
 #Run some univariate models, just to get a feel.
 ar_model = sm.AutoReg(y1,3).fit()
