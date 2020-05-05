@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data = {'bids':         pd.read_csv('data/as_bid_aggregated_data.csv'),
+data = {'bids':         pd.read_csv('data/as_bids_v2.csv'),
+        #'bids':         pd.read_csv('data/as_bid_aggregated_data.csv'),
         'plans':        pd.read_csv('data/as_plan.csv'),
         'energy_prices':pd.read_csv('data/as_bid_aggregated_data.csv'),
         'price_vol':    pd.read_csv('data/as_price_vol.csv'),
@@ -87,33 +88,33 @@ for key in data.keys():
 # %%
 #Drop duplicate cols
 #TODO Why are there dupes?
-dupe_cols = ['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
-                      'OFFNS_Min Price_x','OFFNS_Total Quantity_x',
-                      'OFFNS_Number of Bids_x','OFFNS_Weighted Avg Price_x',
-                      'ONNS_Unweighted Average Price_x','ONNS_Max Price_x',
-                      'ONNS_Min Price_x','ONNS_Total Quantity_x',
-                      'ONNS_Number of Bids_x','ONNS_Weighted Avg Price_x',
-                      'REGDN_Unweighted Average Price_x','REGDN_Max Price_x',
-                      'REGDN_Min Price_x','REGDN_Total Quantity_x',
-                      'REGDN_Number of Bids_x','REGDN_Weighted Avg Price_x',
-                      'REGUP_Unweighted Average Price_x','REGUP_Max Price_x',
-                      'REGUP_Min Price_x','REGUP_Total Quantity_x',
-                      'REGUP_Number of Bids_x','REGUP_Weighted Avg Price_x',
-                      'RRSGN_Unweighted Average Price_x','RRSGN_Max Price_x',
-                      'RRSGN_Min Price_x','RRSGN_Total Quantity_x',
-                      'RRSGN_Number of Bids_x','RRSGN_Weighted Avg Price_x',
-                      'RRSNC_Unweighted Average Price_x','RRSNC_Max Price_x',
-                      'RRSNC_Min Price_x','RRSNC_Total Quantity_x',
-                      'RRSNC_Number of Bids_x','RRSNC_Weighted Avg Price_x',
-                      'RRSLD_Unweighted Average Price_x','RRSLD_Max Price_x',
-                      'RRSLD_Min Price_x','RRSLD_Total Quantity_x',
-                      'RRSLD_Number of Bids_x','RRSLD_Weighted Avg Price_x',
-                      'RRSLD_Unweighted Average Price_y','RRSLD_Max Price_y',
-                      'RRSLD_Min Price_y','RRSLD_Total Quantity_y',
-                      'RRSLD_Number of Bids_y','RRSLD_Weighted Avg Price_y',
-                      ]
-union_df = union_df.drop(columns=dupe_cols)
-intersect_df = intersect_df.drop(columns=dupe_cols)
+# dupe_cols = ['OFFNS_Unweighted Average Price_x','OFFNS_Max Price_x',
+#                       'OFFNS_Min Price_x','OFFNS_Total Quantity_x',
+#                       'OFFNS_Number of Bids_x','OFFNS_Weighted Avg Price_x',
+#                       'ONNS_Unweighted Average Price_x','ONNS_Max Price_x',
+#                       'ONNS_Min Price_x','ONNS_Total Quantity_x',
+#                       'ONNS_Number of Bids_x','ONNS_Weighted Avg Price_x',
+#                       'REGDN_Unweighted Average Price_x','REGDN_Max Price_x',
+#                       'REGDN_Min Price_x','REGDN_Total Quantity_x',
+#                       'REGDN_Number of Bids_x','REGDN_Weighted Avg Price_x',
+#                       'REGUP_Unweighted Average Price_x','REGUP_Max Price_x',
+#                       'REGUP_Min Price_x','REGUP_Total Quantity_x',
+#                       'REGUP_Number of Bids_x','REGUP_Weighted Avg Price_x',
+#                       'RRSGN_Unweighted Average Price_x','RRSGN_Max Price_x',
+#                       'RRSGN_Min Price_x','RRSGN_Total Quantity_x',
+#                       'RRSGN_Number of Bids_x','RRSGN_Weighted Avg Price_x',
+#                       'RRSNC_Unweighted Average Price_x','RRSNC_Max Price_x',
+#                       'RRSNC_Min Price_x','RRSNC_Total Quantity_x',
+#                       'RRSNC_Number of Bids_x','RRSNC_Weighted Avg Price_x',
+#                       'RRSLD_Unweighted Average Price_x','RRSLD_Max Price_x',
+#                       'RRSLD_Min Price_x','RRSLD_Total Quantity_x',
+#                       'RRSLD_Number of Bids_x','RRSLD_Weighted Avg Price_x',
+#                       'RRSLD_Unweighted Average Price_y','RRSLD_Max Price_y',
+#                       'RRSLD_Min Price_y','RRSLD_Total Quantity_y',
+#                       'RRSLD_Number of Bids_y','RRSLD_Weighted Avg Price_y',
+#                       ]
+# union_df = union_df.drop(columns=dupe_cols)
+# intersect_df = intersect_df.drop(columns=dupe_cols)
 # %%
 #find ts of rows with NaN:
 intersect_df.loc[pd.isnull(intersect_df).any(1), :].index.values
