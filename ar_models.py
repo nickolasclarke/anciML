@@ -1,6 +1,8 @@
 # %%
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+
 import matplotlib.pyplot as plt
 import statsmodels.tsa.api as sm 
 from statsmodels.tsa.tsatools import lagmat
@@ -100,6 +102,30 @@ sarimax_model = sm.SARIMAX(y1,exog=exog).fit()
 print('SARIMAX Summary:')
 sarimax_model.summary()
 plot_model(y1,sarimax_model.fittedvalues)
+
+# %%
+#Basic Attempt at Markov Chain
+markov_model = sm.MarkovRegression(y1, k_regimes=3, trend='nc', switching_variance=True).fit()
+markov_model.summary()
+#%%
+#plot markov
+fig, axes = plt.subplots(2, figsize=(20,7))
+axes[0].plot(markov_model.filtered_marginal_probabilities[0])
+axes[1].plot(markov_model.smoothed_marginal_probabilities[0])
+
+# %%
+# attempt a RNN
+# https://www.tensorflow.org/tutorials/structured_data/time_series
+# simple_lstm_model = tf.keras.models.Sequential([
+#     tf.keras.layers.LSTM(8, input_shape=X_train.shape[-2:]),
+#     tf.keras.layers.Dense(1)
+# ])
+
+# simple_lstm_model.compile(optimizer='adam', loss='mae')
+
+# %%
+# simple_lstm_model.predict(y_test[0])
+
 #%%
 #Run multivariate models
 #Removed since we are only concerned with
@@ -112,23 +138,8 @@ plot_model(y1,sarimax_model.fittedvalues)
 # varmax_model.summary()
 
 # %%
-#Basic Attempt at Markov Chain
-markov_model = sm.MarkovRegression(y1, k_regimes=3, trend='nc', switching_variance=True).fit()
-markov_model.summary()
-#%%
-#plot markov
-fig, axes = plt.subplots(2, figsize=(20,7))
-axes[0].plot(markov_model.filtered_marginal_probabilities[0])
-axes[1].plot(markov_model.smoothed_marginal_probabilities[0])
-# %% 
-# attempt a RNN
-# https://www.tensorflow.org/tutorials/structured_data/time_series
-
-# %%
 df_nan = df.describe().loc['count'] < df.shape[0]
-df_nan = df.describe().loc['count'][df_nan].sort_values()
-df_na = df.isna().any(axis=1)
+# df_nan = df.describe().loc['count'][df_nan].sort_values()
+# df_na = df.isna().any(axis=1)
 
 
-
-# %%
