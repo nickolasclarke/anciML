@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data = {'bids':         pd.read_csv('data/as_bids_v2.csv'),
+data = {
+        'bids_regdup':  pd.read_csv('data/as_bids_REGUP.csv'),
+        'bids_regdown': pd.read_csv('data/as_bids_REGDOWN.csv'),
         'plans':        pd.read_csv('data/as_plan.csv'),
         'energy_prices':pd.read_csv('data/energy_price.csv'),
         'price_vol':    pd.read_csv('data/as_price_vol.csv'),
