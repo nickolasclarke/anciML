@@ -1,4 +1,4 @@
-git stausgit# %%
+# %%
 import numpy as np
 import pandas as pd
 #import tensorflow as tf
@@ -80,10 +80,13 @@ print(ar_params)
 #clean up y_hats for export as csv
 ar_yhat_dt = pd.concat([pd.Series(ar_y_hat, name='y_hat'), df_dates],axis=1).dropna()
 ar_yhat_dt = ar_yhat_dt.set_index(['dt'])
-ar_yhat_dt.to_csv('data/ar_preds.csv')
+ar_yhat_dt.to_csv('data/ar_preds_utc.csv')
+ar_yhat_dt = ar_yhat_dt.tz_localize('UTC').tz_convert('America/Chicago')
+ar_yhat_dt.to_csv('data/ar_preds_central.csv')
 # plot autoregressive model
 plot_model(y_train,ar_model.fittedvalues,'Autoregressive Model (2014-2017 Modeled Values vs Training Data)')
 plot_model(y_test,ar_y_hat,'Autoregressive Model (2018 Predictions vs Test Data)')
+plot_model(y_test.values,ar_yhat_dt.values,'Autoregressive Model (2018 Predictions vs Test Data) DT adjusted')
 
 #%%
 # RMSE analysis of autoregressive model
