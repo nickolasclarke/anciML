@@ -1,4 +1,4 @@
-# %%
+git stausgit# %%
 import numpy as np
 import pandas as pd
 #import tensorflow as tf
@@ -9,9 +9,8 @@ from statsmodels.tsa.tsatools import lagmat
 
 # %%
 df = pd.read_csv('data/intersect.csv', index_col='dt', parse_dates=True)
+df_dates = pd.Series(df.index.values,name='dt')
 df = df.reset_index()
-# %%
-
 #index of last hour of 2017
 train_range = 35058
 
@@ -64,19 +63,27 @@ def plot_model(y_true,y_hat,title,figsize=(15,4)):
     plt.tight_layout()
     plt.title(title)
     plt.ylabel('Price')
-    plt.xlabel('Date')
+    plt.xlabel('Hour')
     plt.legend()
     plt.show()
 #%%
 # autoregressive model
 ar_model = sm.AutoReg(y_train,3,exog=exog_train).fit()
+ar_y_hat = ar_model.predict(start=35058, end=43816,exog_oos=exog_test)
 print('AR Summary')
 ar_model.summary()
-
 #%%
+# which coeffs are most influential?
+ar_params = ar_model.params.abs().sort_values(ascending=False)
+print(ar_params)
+#%%
+#clean up y_hats for export as csv
+ar_yhat_dt = pd.concat([pd.Series(ar_y_hat, name='y_hat'), df_dates],axis=1).dropna()
+ar_yhat_dt = ar_yhat_dt.set_index(['dt'])
+ar_yhat_dt.to_csv('data/ar_preds.csv')
 # plot autoregressive model
 plot_model(y_train,ar_model.fittedvalues,'Autoregressive Model (2014-2017 Modeled Values vs Training Data)')
-plot_model(y_test,ar_model.predict(start=35058, end=43816,exog_oos=exog_test),'Autoregressive Model (2018 Predictions vs Test Data)')
+plot_model(y_test,ar_y_hat,'Autoregressive Model (2018 Predictions vs Test Data)')
 
 #%%
 # RMSE analysis of autoregressive model
